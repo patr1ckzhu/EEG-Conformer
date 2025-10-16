@@ -384,6 +384,9 @@ def main():
     print(f"Save directory: {args.save_dir}")
     print("=" * 80)
 
+    # 创建保存目录
+    os.makedirs(args.save_dir, exist_ok=True)
+
     best_accs = []
     aver_accs = []
     result_write = open(f"{args.save_dir}/training_summary.txt", "w")
