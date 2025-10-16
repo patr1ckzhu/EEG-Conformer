@@ -37,16 +37,16 @@ try:
     print("\n" + "=" * 80)
     print("conformer.py 期望的格式:")
     print("=" * 80)
-    print("  data shape: (channels, timepoints, trials)")
-    print("  例如: (22, 1000, 288)")
+    print("  data shape: (timepoints, channels, trials)")
+    print("  例如: (1000, 22, 288)")
     print()
-    print("  label shape: (trials, 1)  <- 注意:是(trials, 1)而不是(1, trials)!")
+    print("  label shape: (trials, 1)")
     print("  例如: (288, 1)")
     print("  label values: 1, 2, 3, 4")
     print()
-    print("  为什么是(trials, 1)?")
-    print("  因为conformer.py会先np.transpose(label),然后取[0]")
-    print("  (288, 1) -> transpose -> (1, 288) -> [0] -> (288,) ✓")
+    print("  为什么是 (timepoints, channels, trials)?")
+    print("  因为conformer.py会执行: transpose((2,1,0)) -> expand_dims(axis=1)")
+    print("  (1000, 22, 288) -> transpose -> (288, 22, 1000) -> expand -> (288, 1, 22, 1000) ✓")
 
     print("\n" + "=" * 80)
     print("问题诊断:")
@@ -59,6 +59,12 @@ try:
         # 检查数据维度
         if len(data_shape) == 3:
             print(f"✓ data 有3个维度: {data_shape}")
+            # 验证是 (times, channels, trials) 格式
+            if data_shape[0] > 100 and data_shape[1] < 30:  # times > 100, channels < 30
+                print(f"✓ data 看起来是 (times, channels, trials) 格式")
+            else:
+                print(f"⚠ data 可能不是 (times, channels, trials) 格式")
+                print(f"  应该是: (1000, 22, 288)")
         else:
             print(f"✗ data 维度不对: {data_shape}")
 
