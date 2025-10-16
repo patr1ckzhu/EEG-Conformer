@@ -12,6 +12,7 @@ import argparse
 import numpy as np
 import scipy.io
 from pathlib import Path
+import mne
 
 def download_dataset_2a(output_dir):
     """
@@ -55,7 +56,14 @@ def download_dataset_2a(output_dir):
             sessions = dataset.get_data(subjects=[subject_id])
 
             # BNCI2014_001包含两个session: session_T (训练) 和 session_E (测试)
-            for session_name, session_data in sessions[subject_id].items():
+            # 或者可能是 session_0 (训练) 和 session_1 (测试)
+            session_list = list(sessions[subject_id].items())
+
+            print(f"  发现 {len(session_list)} 个session")
+
+            for session_idx, (session_name, session_data) in enumerate(session_list):
+                print(f"  处理 session: '{session_name}'")
+
                 # 提取run数据
                 all_data = []
                 all_labels = []
@@ -94,7 +102,12 @@ def download_dataset_2a(output_dir):
                 labels = all_labels.reshape(1, -1)
 
                 # 保存为.mat文件
-                session_suffix = 'T' if 'T' in session_name else 'E'
+                # 判断是训练集还是测试集
+                if 'T' in session_name or '0' in session_name or session_idx == 0:
+                    session_suffix = 'T'
+                else:
+                    session_suffix = 'E'
+
                 filename = f"A{subject_id:02d}{session_suffix}.mat"
                 filepath = output_path / filename
 
@@ -107,6 +120,7 @@ def download_dataset_2a(output_dir):
                 )
 
                 print(f"  [SAVED] {filename}")
+                print(f"    - Session name: '{session_name}'")
                 print(f"    - Data shape: {data_transposed.shape}")
                 print(f"    - Label shape: {labels.shape}")
                 print(f"    - Label range: {labels.min()} - {labels.max()}")
