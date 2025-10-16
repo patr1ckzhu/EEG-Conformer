@@ -94,6 +94,10 @@ def download_dataset_2a(output_dir):
                 all_data = np.concatenate(all_data, axis=0)  # (n_trials, n_channels, n_times)
                 all_labels = np.concatenate(all_labels, axis=0)  # (n_trials,)
 
+                # 截取前1000个时间点 (MNE可能返回1001个点)
+                if all_data.shape[2] > 1000:
+                    all_data = all_data[:, :, :1000]
+
                 # 转换为EEG-Conformer期望的格式
                 # 从 (trials, channels, times) 转为 (channels, times, trials)
                 data_transposed = np.transpose(all_data, (1, 2, 0))
