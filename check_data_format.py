@@ -40,9 +40,13 @@ try:
     print("  data shape: (channels, timepoints, trials)")
     print("  例如: (22, 1000, 288)")
     print()
-    print("  label shape: (1, trials)")
-    print("  例如: (1, 288)")
+    print("  label shape: (trials, 1)  <- 注意:是(trials, 1)而不是(1, trials)!")
+    print("  例如: (288, 1)")
     print("  label values: 1, 2, 3, 4")
+    print()
+    print("  为什么是(trials, 1)?")
+    print("  因为conformer.py会先np.transpose(label),然后取[0]")
+    print("  (288, 1) -> transpose -> (1, 288) -> [0] -> (288,) ✓")
 
     print("\n" + "=" * 80)
     print("问题诊断:")
@@ -59,15 +63,15 @@ try:
             print(f"✗ data 维度不对: {data_shape}")
 
         # 检查标签维度
-        if label_shape[0] == 1:
-            print(f"✓ label 第一维是1: {label_shape}")
+        if len(label_shape) == 2 and label_shape[1] == 1:
+            print(f"✓ label 格式正确: {label_shape} (trials, 1)")
         else:
-            print(f"✗ label 第一维不是1: {label_shape}")
-            print(f"  需要: (1, n_trials), 实际: {label_shape}")
+            print(f"✗ label 格式不对: {label_shape}")
+            print(f"  需要: (n_trials, 1), 实际: {label_shape}")
 
         # 检查数量是否匹配
         n_trials_data = data_shape[2] if len(data_shape) == 3 else data_shape[0]
-        n_trials_label = label_shape[1] if len(label_shape) == 2 else label_shape[0]
+        n_trials_label = label_shape[0] if len(label_shape) == 2 and label_shape[1] == 1 else label_shape[0]
 
         if n_trials_data == n_trials_label:
             print(f"✓ 数据和标签的trial数量匹配: {n_trials_data}")

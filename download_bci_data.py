@@ -102,8 +102,9 @@ def download_dataset_2a(output_dir):
                 # 从 (trials, channels, times) 转为 (channels, times, trials)
                 data_transposed = np.transpose(all_data, (1, 2, 0))
 
-                # 标签reshape
-                labels = all_labels.reshape(1, -1)
+                # 标签reshape - 注意:conformer.py期望的是(n_trials, 1)而不是(1, n_trials)
+                # 因为conformer.py会先transpose再取[0]
+                labels = all_labels.reshape(-1, 1)
 
                 # 保存为.mat文件
                 # 判断是训练集还是测试集
@@ -200,7 +201,7 @@ def download_dataset_2b(output_dir):
                 all_labels = np.concatenate(all_labels, axis=0)
 
                 data_transposed = np.transpose(all_data, (1, 2, 0))
-                labels = all_labels.reshape(1, -1)
+                labels = all_labels.reshape(-1, 1)  # (n_trials, 1) 格式
 
                 # Dataset 2b文件命名: B0101T.mat (Subject 01, Session 01, Training/Evaluation)
                 session_type = 'T' if session_idx <= 3 else 'E'
