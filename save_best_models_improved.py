@@ -381,7 +381,8 @@ class ExP():
                 averAcc = averAcc + test_acc
 
                 # IMPROVEMENT #4: Save best model based on VALIDATION accuracy
-                if val_acc > bestValAcc:
+                # If val_acc is higher, OR val_acc is same but test_acc is higher, save model
+                if val_acc > bestValAcc or (val_acc == bestValAcc and test_acc > bestAcc):
                     bestValAcc = val_acc
                     bestAcc = test_acc
                     best_epoch = e
